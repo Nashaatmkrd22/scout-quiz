@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الاختبارات الكشفية العربية</title>
+    <style>
+        :root {
+            --scout-green: #1b5e20;
+            --scout-gold: #ffd700;
+            --text-dark: #333;
+            --bg-light: #f0f2f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .main-container {
+            background: white;
+            width: 100%;
+            max-width: 650px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-top: 12px solid var(--scout-green);
+        }
+
+        /* تنسيق شاشات العرض */
+        .quiz-box {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .start-screen h1 { color: var(--scout-green); margin-bottom: 10px; font-size: 2rem; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 1.1rem; }
+
+        input[type="text"] {
+            width: 85%;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--scout-green);
+            outline: none;
+        }
+
+        /* تنسيق شاشة الاختبار */
+        .question {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--scout-gold);
+            padding-bottom: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: right;
+            color: var(--text-dark);
+        }
+
+        .option-btn:hover {
+            background-color: #f9f9f9;
+            border-color: var(--scout-green);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+
+        .start-btn, .action-btn {
+            background: var(--scout-green);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: background 0.3s, transform 0.2s;
+            font-weight: bold;
+        }
+
+        .start-btn:hover, .action-btn:hover {
+            background: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        /* تنسيق شهادة التقدير */
+        #certificate-container {
+            display: none;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .certificate {
+            background: white;
+            border: 20px solid var(--scout-green);
+            border-image: linear-gradient(45deg, var(--scout-green), var(--scout-gold)) 1;
+            padding: 50px;
+            position: relative;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .certificate-header {
+            color: var(--scout-green);
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .cert-title {
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            color: var(--text-dark);
+        }
+
+        .present-to { font-size: 1.3rem; color: #555; }
+
+        .student-name {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: var(--scout-green);
+            margin: 20px 0;
+            border-bottom: 3px solid var(--scout-gold);
+            display: inline-block;
+            padding: 0 30px;
+        }
+
+        .cert-text {
+            font-size: 1.4rem;
+            line-height: 1.7;
+            margin: 25px 0;
+            color: var(--text-dark);
+        }
+
+        .score-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--scout-green);
+        }
+
+        .certificate-footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            color: #444;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        /* تنسيق الطباعة */
+        @media print {
+            body * { visibility: hidden; }
+            #certificate-container, #certificate-container * { visibility: visible; }
+            #certificate-container {
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                height: 100%;
+                display: block !important;
+                padding: 0;
+                margin: 0;
+            }
+            .certificate {
+                border-width: 25px;
+                box-shadow: none;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    
+    <div id="start-screen" class="quiz-box start-screen">
+        <h1>مرحباً بك أيها الجوال</h1>
+        <p class="subtitle">في منصة الاختبارات الكشفية العربية الشاملة</p>
+        <p>الاختبار يتكون من موضوعات: تاريخ الحركة الكشفية، حياة الخلاء، أسس التخييم، والإسعافات الأولية.</p>
+        <p>يرجى إدخال اسمك الثلاثي للحصول على شهادة التقدير:</p>
+        <input type="text" id="user-name" placeholder="الاسم الثلاثي هنا..." required>
+        <br>
+        <button class="start-btn" onclick="startQuiz()">ابدأ الاختبار</button>
+    </div>
+
+    <div id="quiz-screen" class="quiz-box" style="display:none;">
+        <div id="question-text" class="question">جارِ تحميل السؤال...</div>
+        <div id="options-box" class="options-grid"></div>
+    </div>
+
+    <div id="certificate-container">
+        <div class="certificate">
+            <div class="certificate-header">شهادة تقدير</div>
+            <div class="cert-title">منصة الاختبارات الكشفية</div>
+            
+            <p class="present-to">تشهد إدارة المنصة بأن الجوال البطل:</p>
+            <div id="cert-student-name" class="student-name">[اسم الجوال]</div>
+            
+            <p class="cert-text">
+                قد اجتاز بنجاح اختبار <strong>"المعارف والمهارات الكشفية الشاملة"</strong>
+                <br>
+                وقد حصل على درجة:
+                <span id="cert-score" class="score-display">0/0</span>
+            </p>
+            
+            <p>مع تمنياتنا له بدوام التقدم والنجاح في رحلته الكشفية "نحو النجاح".</p>
+
+            <div class="certificate-footer">
+                <div>التاريخ: <span id="cert-date"></span></div>
+                <div>ختم/توقيع القائد</div>
+            </div>
+        </div>
+        
+        <div class="no-print" style="margin-top: 30px;">
+            <button class="action-btn" onclick="window.print()">طباعة / حفظ كـ PDF</button>
+            <button class="action-btn" style="background:#666;" onclick="location.reload()">إعادة الاختبار</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- بنك الأسئلة الشامل والمتنوع ---
+    const quizData = [
+        // --- تاريخ الحركة الكشفية ---
+        { q: "في أي عام صدر كتاب 'الكشفية للفتيان' للمؤلف بادن باول؟", a: ["1905", "1907", "1908", "1910"], correct: "1908" },
+        { q: "ما هي المدينة التي حاصرها بادن باول واستلهم منها فكرة الكشافة؟", a: ["لندن", "مافكينج", "القاهرة", "باريس"], correct: "مافكينج" },
+        { q: "من هي الشخصية التي ساهمت في تأسيس حركة المرشدات؟", a: ["أولاف بادن باول", "الملكة إليزابيث", "فلورنس نايتنجيل"], correct: "أولاف بادن باول" },
+        { q: "ما هو الشعار الذي اختاره بادن باول لمرحلة الجوالة؟", a: ["كن مستعداً", "الخدمة", "إلى الأمام"], correct: "الخدمة" },
+
+        // --- حياة الخلاء وأسس التخييم ---
+        { q: "عند اختيار موقع الخيمة، يجب أن يكون بعيداً عن الأشجار المنفردة لـ:", a: ["تجنب الحشرات", "تجنب الصواعق", "تجنب الرياح"], correct: "تجنب الصواعق" },
+        { q: "أي أنواع النيران الآتية تستخدم للطهي السريع؟", a: ["نار النجمة", "النار الهرمية", "النار العاكسة"], correct: "النار الهرمية" },
+        { q: "المسافة الآمنة بين النيران والخيمة لا تقل عن:", a: ["1 متر", "3 أمتار", "6 أمتار"], correct: "3 أمتار" },
+        { q: "المسافة بين أعمدة الخيمة تسمى 'الرواق'، وفائدتها:", a: ["للزينة", "منع تسرب مياه الأمطار", "زيادة التهوية"], correct: "منع تسرب مياه الأمطار" },
+
+        // --- المهارات الكشفية (عقد، خرائط، بوصلة) ---
+        { q: "أي من هذه العقد تستخدم لربط حبلين من سمكين مختلفين؟", a: ["العقدة الأفقية", "العقدة الورقية", "غرزة الصياد"], correct: "العقدة الورقية" },
+        { q: "العقدة التي تستخدم لتقصير حبل طويل دون قطعه هي:", a: ["عقدة الحطاب", "العقدة السماكية", "عقدة الصياد"], correct: "العقدة السماكية" },
+        { q: "في الخريطة الكشفية، ترمز خطوط الكنتور البنية المتعرجة إلى:", a: ["الأنهار", "الارتفاعات والتضاريس", "الغابات"], correct: "الارتفاعات والتضاريس" },
+        { q: "إذا كانت الزاوية (الإنحراف) لجهة الشرق هي 90 درجة، فما هي زاوية جهة الغرب؟", a: ["180 درجة", "270 درجة", "360 درجة"], correct: "270 درجة" },
+
+        // --- الإسعافات الأولية (First Aid) ---
+        { q: "ما هو الإجراء الأول عند تقديم الإسعاف لشخص فاقد الوعي؟", a: ["إعطاؤه ماء", "التأكد من فتح المجرى التنفسي", "تدليك أطرافه"], correct: "التأكد من فتح المجرى التنفسي" },
+        { q: "عند حدوث نزيف حاد، ما هي الخطوة الصحيحة للسيطرة عليه؟", a: ["وضع ثلج", "الضغط المباشر على الجرح", "غسل الجرح بالماء"], correct: "الضغط المباشر على الجرح" },
+        { q: "في حالات الحروق البسيطة من الدرجة الأولى، نستخدم:", a: ["معجون أسنان", "ماء جارٍ فاتر", "زيت زيتون"], correct: "ماء جارٍ فاتر" },
+
+        // --- التقاليد والمنهج ---
+        { q: "ما هو عدد بنود قانون الكشافة؟", a: ["8 بنود", "10 بنود", "12 بنداً"], correct: "10 بنود" },
+        { q: "في لغة الصافرات الكشفية، ماذا تعني (صفرة طويلة واحدة)؟", a: ["خطر", "انتباه / سكون", "تجمع"], correct: "انتباه / سكون" }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let userName = "";
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const certContainer = document.getElementById('certificate-container');
+
+    // بدء الاختبار
+    function startQuiz() {
+        const nameInput = document.getElementById('user-name').value;
+        if (nameInput.trim() === "") {
+            alert("يرجى إدخال اسمك الثلاثي أولاً للحصول على الشهادة.");
+            return;
+        }
+        userName = nameInput;
+        startScreen.style.display = 'none';
+        quizScreen.style.display = 'block';
+        loadQuestion();
+    }
+
+    // تحميل السؤال الحالي
+    function loadQuestion() {
+        if (currentQ < quizData.length) {
+            const q = quizData[currentQ];
+            document.getElementById("question-text").innerText = `س${currentQ + 1}: ${q.q}`;
+            const optionsBox = document.getElementById("options-box");
+            optionsBox.innerHTML = ""; // تنظيف الخيارات السابقة
+
+            q.a.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.classList.add("option-btn");
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt);
+                optionsBox.appendChild(btn);
+            });
+        } else {
+            showCertificate();
+        }
+    }
+
+    // التحقق من الإجابة
+    function checkAnswer(selectedAnswer) {
+        if (selectedAnswer === quizData[currentQ].correct) {
+            score++;
+        }
+        currentQ++;
+        loadQuestion();
+    }
+
+    // عرض الشهادة النهائية
+    function showCertificate() {
+        quizScreen.style.display = 'none';
+        certContainer.style.display = 'block';
+
+        document.getElementById('cert-student-name').innerText = userName;
+        document.getElementById('cert-score').innerText = `${score} من ${quizData.length}`;
+        
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('cert-date').innerText = dateStr;
+    }
+</script>
+
+</body>
+</html>
